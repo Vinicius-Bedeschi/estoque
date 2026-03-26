@@ -1,4 +1,4 @@
-const API_URL = '';
+const API_URL = "/api";
 
 let dadosBase = {
   itens: [],
