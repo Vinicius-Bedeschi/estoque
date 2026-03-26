@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Solicitação de Materiais</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<div id="modalConsulta" class="modal hidden">
+  <div class="modal-content">
+
+    <span class="close" onclick="fecharModalConsulta()">&times;</span>
+
+    <h2>Consultar pedidos</h2>
+
+    <div class="grid">
+      <div class="field">
+        <label>Número do pedido</label>
+        <input type="text" id="consultaPedido" placeholder="Ex: 202600001">
+      </div>
+
+      <div class="field">
+        <label>Matrícula</label>
+        <input type="text" id="consultaMatricula" placeholder="Ex: 286113">
+      </div>
+    </div>
+
+    <button id="btnBuscarPedidos" class="btn primary" onclick="consultarPedidos()">Buscar</button>
+
+    <div id="resultadoConsulta" class="resultado-consulta"></div>
+
+  </div>
+</div>
+
+<body>
+  <!-- Barra de progresso global -->
+  <div id="progressBar" class="progress-bar-container hidden">
+    <div class="progress-bar-fill"></div>
+  </div>
+
+  <!-- Spinner central -->
+  <div id="loadingOverlay" class="loading-overlay hidden">
+    <div class="loading-spinner-center">
+      <div class="spinner"></div>
+      <p id="loadingText">Carregando...</p>
+    </div>
+  </div>
+
+  <main class="container">
+    <section class="card hero">
+      <h1>Solicitação de Materiais</h1>
+      <p class="sub">
+        Preencha os dados abaixo e monte seu pedido.
+      </p>
+
+      <div class="grid">
+        <div class="field">
+          <label for="matricula">Matrícula</label>
+          <input type="text" id="matricula" placeholder="Digite a matrícula" />
+        </div>
+
+        <div class="field grow-2">
+          <label for="nome">Nome</label>
+          <input type="text" id="nome" readonly placeholder="Será preenchido automaticamente" />
+        </div>
+
+        <div class="field">
+          <label for="telefone">Telefone</label>
+          <input type="text" id="telefone" placeholder="Digite o telefone" />
+        </div>
+
+        <div class="field">
+          <label for="local">Local</label>
+          <select id="local">
+            <option value="">Selecione</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="departamento">Departamento</label>
+          <select id="departamento">
+            <option value="">Selecione</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="table-header">
+        <h2>Itens do pedido</h2>
+      </div>
+
+      <div class="grid itens-grid">
+        <div class="field grow-2">
+          <label for="item">Item</label>
+          <select id="item">
+            <option value="">Selecione um item</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="quantidade">Quantidade</label>
+          <input type="number" id="quantidade" min="1" placeholder="Ex: 2" />
+        </div>
+
+        <div class="field button-field">
+          <label>&nbsp;</label>
+          <button id="btnAdicionar" class="btn primary">Adicionar item</button>
+        </div>
+
+        <div class="field full">
+          <div id="itemInfoBox" class="item-info-box hidden">
+            <div class="item-info-top">
+              <span id="itemInfoText" class="item-info-text"></span>
+              <span id="itemInfoBadge" class="item-info-badge"></span>
+            </div>
+            <div class="stock-bar">
+              <div id="stockBarFill" class="stock-bar-fill"></div>
+            </div>
+          </div>
+
+          <div id="itemError" class="field-error hidden"></div>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Quantidade</th>
+              <th>Valor Total</th>
+              <th>Ação</th>
+            </tr>
+          </thead>
+          <tbody id="tabelaItens">
+            <tr>
+              <td colspan="3" class="empty">Nenhum item adicionado.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div id="totalPedidoBox" class="total-pedido-box hidden">
+        <span>Total estimado do pedido:</span>
+        <strong id="totalPedidoValor">R$ 0,00</strong>
+      </div>
+
+      <div class="field full observacao-bloco">
+        <label for="observacao">Observação</label>
+        <textarea id="observacao" rows="3" placeholder="Opcional"></textarea>
+      </div>
+
+      <div id="successBox" class="msg success hidden"></div>
+      <div id="errorBox" class="msg error hidden"></div>
+
+      <div class="actions">
+       <!-- ESQUERDA -->
+        <button id="btnConsultar" class="btn secondary" onclick="abrirModalConsulta()">
+         Consultar pedidos
+        </button>
+
+       <!-- DIREITA -->
+       <div class="actions-right">
+         <button id="btnLimpar" class="btn ghost">Limpar pedido</button>
+         <button id="btnEnviar" class="btn primary">Enviar solicitação</button>
+       </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="main-footer">
+    <p>Desenvolvido por <strong>Vinícius Bedeschi</strong></p>
+    <span class="version">v1.0.2026</span>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
