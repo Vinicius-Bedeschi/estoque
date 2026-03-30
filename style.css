@@ -835,7 +835,6 @@ tbody tr:hover td { background-color: #f8fafc; }
 
 /* =========================================
    BREAKPOINT EXTRA PARA TELAS MUITO PEQUENAS
-   (<480px: iPhone SE, dispositivos antigos, etc)
    ========================================= */
    
 @media (max-width: 480px) {
