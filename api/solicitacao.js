@@ -14,8 +14,17 @@ export default async function handler(req, res) {
       body: JSON.stringify(req.body)
     });
 
-    const data = await response.json();
-    res.status(200).json(data);
+  const text = await response.text();
+
+    let json; 
+    try { 
+      json = JSON.parse(text); 
+    } catch(err) { 
+      return res.status(500).json({ ok: false, error: 'Resposta inválida do Google', debug: text.slice(0,500) }); 
+    }
+
+    res.status(200).json(json);
+
   } catch (error) {
     res.status(500).json({ ok: false, error: error.message });
   }

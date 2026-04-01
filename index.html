@@ -7,32 +7,6 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 
-<div id="modalConsulta" class="modal hidden">
-  <div class="modal-content">
-
-    <span class="close" onclick="fecharModalConsulta()">&times;</span>
-
-    <h2>Consultar pedidos</h2>
-
-    <div class="grid">
-      <div class="field">
-        <label>Número do pedido</label>
-        <input type="text" id="consultaPedido" placeholder="Ex: 202600001">
-      </div>
-
-      <div class="field">
-        <label>Matrícula</label>
-        <input type="text" id="consultaMatricula" placeholder="Ex: 286113">
-      </div>
-    </div>
-
-    <button id="btnBuscarPedidos" class="btn primary" onclick="consultarPedidos()">Buscar</button>
-
-    <div id="resultadoConsulta" class="resultado-consulta"></div>
-
-  </div>
-</div>
-
 <body>
   <!-- Barra de progresso global -->
   <div id="progressBar" class="progress-bar-container hidden">
@@ -125,21 +99,11 @@
       </div>
 
       <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Item</th>
-              <th>Quantidade</th>
-              <th>Valor Total</th>
-              <th>Ação</th>
-            </tr>
-          </thead>
-          <tbody id="tabelaItens">
-            <tr>
-              <td colspan="3" class="empty">Nenhum item adicionado.</td>
-            </tr>
-          </tbody>
-        </table>
+        <div id="tabelaItens">
+           <div style="text-align: center; padding: 20px; color: #666;">
+               Nenhum item adicionado.
+           </div>
+        </div>
       </div>
 
       <div id="totalPedidoBox" class="total-pedido-box hidden">
@@ -172,9 +136,36 @@
 
   <footer class="main-footer">
     <p>Desenvolvido por <strong>Vinícius Bedeschi</strong></p>
-    <span class="version">v1.0.2026</span>
+    <span class="version">v1.31.2026</span>
   </footer>
 
   <script src="script.js"></script>
+
+<div id="modalConsulta" class="modal hidden">
+  <div class="modal-content">
+
+    <span class="close" onclick="fecharModalConsulta()">&times;</span>
+
+    <h2>Consultar pedidos</h2>
+
+    <div class="grid">
+      <div class="field">
+        <label>Número do pedido</label>
+        <input type="text" id="consultaPedido" placeholder="Ex: 202600001">
+      </div>
+
+      <div class="field">
+          <label for="matricula">Matrícula</label>
+          <input type="text" id="matricula" placeholder="Digite a matrícula" />
+          
+          <div id="matriculaErrorBox" class="hidden"></div>
+        </div>
+
+    <button id="btnBuscarPedidos" class="btn primary" onclick="consultarPedidos()">Buscar</button>
+
+    <div id="resultadoConsulta" class="resultado-consulta"></div>
+
+  </div>
+</div>
 </body>
 </html>

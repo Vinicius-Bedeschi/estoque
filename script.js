@@ -228,12 +228,22 @@ function limparErroItem() {
 }
 
 async function buscarFuncionario() {
-  limparMensagens();
+  limparMensagens(); 
 
   const matricula = matriculaInput.value.trim();
   nomeInput.value = '';
 
+  // 1. Limpa todas as mensagens de erro relacionadas à matrícula
+  document.querySelectorAll('.erro-matricula-dinamico').forEach(caixa => caixa.remove());
+
   if (!matricula) return;
+
+  // 2. Prepara a tela para a busca
+  const loadingOverlay = document.getElementById('loadingOverlay');
+  const loadingText = document.getElementById('loadingText');
+  
+  loadingText.innerText = 'Localizando funcionário...';
+  loadingOverlay.classList.remove('hidden'); 
 
   try {
     const res = await fetch(`${API_URL}/funcionario?matricula=${encodeURIComponent(matricula)}`);
@@ -243,13 +253,43 @@ async function buscarFuncionario() {
       throw new Error(json.error || 'Erro ao buscar funcionário.');
     }
 
-    nomeInput.value = json.data.nome || '';
-
-    if (!json.data.nome) {
-      mostrarErro('Matrícula não encontrada.');
+    if (json.data && json.data.nome) {
+      nomeInput.value = json.data.nome;
+    } else {
+      throw new Error('Matrícula não encontrada.');
     }
-  } catch (error) {
-    mostrarErro(error.message);
+
+} catch (error) {
+    
+    const divErro = document.createElement('div');
+    divErro.className = 'erro-matricula-dinamico';
+        
+    divErro.style.gridColumn = '1 / -1'; 
+
+    divErro.innerHTML = `
+        <div style="padding: 14px; background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; color: #991b1b; font-size: 13px; line-height: 1.5; text-align: left; box-shadow: 0 2px 4px rgba(153, 27, 27, 0.05);">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                <span style="font-size: 16px;">⚠️</span>
+                <strong style="font-size: 14px; color: #b91c1c;">Funcionário não encontrado!</strong>
+            </div>
+            
+            <p style="margin: 0 0 12px 0;">Não localizamos esta matrícula no sistema. Por favor, entre em contato com a <b>Ouvidoria</b> para realizar o seu cadastro.</p>
+            
+            <div style="font-size: 12px; color: #7f1d1d; background: rgba(255,255,255,0.5); padding: 10px; border-radius: 8px;">
+                📍 Atendimento presencial ou pelo WhatsApp:<br>
+                📱 <a href="https://wa.me/5532987091799" target="_blank" style="color: #b91c1c; font-weight: bold; text-decoration: none; font-size: 13px;">(32) 98709-1799</a>
+            </div>
+        </div>
+    `;
+    
+    
+    document.querySelectorAll('.erro-matricula-dinamico').forEach(caixa => caixa.remove());
+    
+    
+    nomeInput.parentNode.insertAdjacentElement('afterend', divErro);
+    
+  } finally {
+    loadingOverlay.classList.add('hidden');
   }
 }
 
@@ -317,12 +357,14 @@ function renderizarTabela() {
   }
 
   tabelaItens.innerHTML = carrinho.map((item, index) => `
-    <tr>
-      <td>${item.item}</td>
-      <td>${item.quantidade}</td>
-      <td>${formatarMoeda(item.valorTotal)}</td>
-      <td><button class="btn danger" onclick="removerItem(${index})">Remover</button></td>
-    </tr>
+    <div class="cartao-item">
+      <div class="cartao-dados">
+        <span class="cartao-titulo">${item.item}</span>
+        <span class="cartao-detalhe">Qtd: ${item.quantidade}</span>
+        <span class="cartao-destaque">${formatarMoeda(item.valorTotal)}</span>
+      </div>
+      <button class="btn danger btn-remover" onclick="removerItem(${index})">Remover</button>
+    </div>
   `).join('');
 
   atualizarTotalPedido();
@@ -373,26 +415,36 @@ function validarFormulario() {
 async function enviarPedido() {
   limparMensagens();
 
+  // 1. Validação do formulário
   const erro = validarFormulario();
   if (erro) {
     mostrarErro(erro);
     return;
   }
 
-  const payload = {
-    action: 'salvarSolicitacao',
-    matricula: matriculaInput.value.trim(),
-    telefone: telefoneInput.value.trim(),
-    local: localSelect.value,
-    departamento: departamentoSelect.value,
-    observacao: observacaoInput.value.trim(),
-    itens: carrinho.map(item => ({
-      item: item.item,
-      quantidade: item.quantidade
-    }))
-  };
+  // 2. Prepara a tela para o envio
+  const loadingOverlay = document.getElementById('loadingOverlay');
+  const loadingText = document.getElementById('loadingText');
+  
+  loadingText.innerText = 'Enviando solicitação, aguarde...';
+  loadingOverlay.classList.remove('hidden');
 
   try {
+    // 3. Monta os dados
+    const payload = {
+      action: 'salvarSolicitacao',
+      matricula: matriculaInput.value.trim(),
+      telefone: telefoneInput.value.trim(),
+      local: localSelect.value,
+      departamento: departamentoSelect.value,
+      observacao: observacaoInput.value.trim(),
+      itens: carrinho.map(item => ({
+        item: item.item,
+        quantidade: item.quantidade
+      }))
+    };
+
+    // 4. Faz a requisição para a API interna, que repassa para o Google Apps Script
     const res = await fetch(`${API_URL}/solicitacao`, {
       method: 'POST',
       headers: {
@@ -407,10 +459,16 @@ async function enviarPedido() {
       throw new Error(json.error || 'Erro ao enviar solicitação.');
     }
 
-    mostrarSucesso(`✔ Solicitação registrada com sucesso | Nº do pedido: ${json.data.numeroPedido}`);
+    // 5. Sucesso - mostra a mensagem e reseta o formulário
+    mostrarSucesso(`✔ Solicitação registrada com sucesso | Nº do pedido: ${json.data.numeroPedido || 'Gerado'}`);
     resetarFormulario();
+
   } catch (error) {
-    mostrarErro(error.message);
+    // 6. Erro - mostra a mensagem de erro
+    mostrarErro(error.message || 'Ocorreu um erro ao enviar o pedido.');
+  } finally {
+    // 7. Finalização - esconde o loading
+    loadingOverlay.classList.add('hidden');
   }
 }
 
