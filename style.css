@@ -646,14 +646,6 @@ tbody tr:hover td { background-color: #f8fafc; }
   font-weight: 700;
 }
 
-.pedido-card {
-  border: 1px solid #e5eae9;
-  border-radius: 12px;
-  padding: 12px;
-  margin-top: 10px;
-  background: #f9fafb;
-}
-
 .pedido-header {
   margin-bottom: 10px;
 }
@@ -673,38 +665,6 @@ tbody tr:hover td { background-color: #f8fafc; }
   font-size: 12px;
   font-weight: 700;
   margin-top: 4px;
-}
-
-.status-pendente {
-  background: #fdeaea;
-  color: #c62828;
-  border: 1px solid #f5b5b5;
-}
-
-.status-em-separacao {
-  background: #eaf3ff;
-  color: #1565c0;
-  border: 1px solid #b9d4ff;
-}
-
-.status-separado {
-  background: #fff8e1;
-  color: #b28704;
-  border: 1px solid #f3df9b;
-}
-
-.status-entregue {
-  background: #e8f5e9;
-  color: #2e7d32;
-  border: 1px solid #b7dfb9;
-}
-
-.status {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
 }
 
 .status-pendente {
@@ -842,11 +802,13 @@ tbody tr:hover td { background-color: #f8fafc; }
     gap: 12px;
   }
   
-  /* 2. Spinner menor */
+/* 2. Spinner menor */
   .spinner {
     width: 36px;
     height: 36px;
     border: 3px solid #f0f0f0;
+    border-top-color: var(--csc-cyan);
+    border-right-color: var(--csc-cyan);
   }
   
   #loadingText {
@@ -1076,4 +1038,13 @@ tbody tr:hover td { background-color: #f8fafc; }
       padding: 8px 16px; 
       margin-left: 15px;
   }
+}
+
+/* Estilo dinâmico dos cards de consulta de pedidos */
+.pedido-card {
+  border: 1px solid #cbccce;
+  margin-bottom: 20px;
+  border-radius: 8px; /* Já aproveita e deixa as pontas arredondadas! */
+  background-color: #f3f1f1; /* Garante que o fundo do card fique branquinho, destacando do fundo do modal */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* Uma sombrinha super leve pra dar um charme */
 }

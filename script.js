@@ -535,17 +535,27 @@ function fecharModalConsulta() {
 }
 
 async function consultarPedidos() {
-
   const pedido = document.getElementById('consultaPedido').value.trim();
   const matricula = document.getElementById('consultaMatricula').value.trim();
 
   const container = document.getElementById('resultadoConsulta');
   const btnBuscar = document.getElementById('btnBuscarPedidos');
 
+  // 1. Trava: Exige pelo menos a matrícula para buscar
+  if (!matricula && !pedido) {
+      container.innerHTML = `
+        <div style="padding: 12px; background-color: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; color: #92400e; font-size: 13px; margin-top: 16px; text-align: left;">
+           ⚠️ <strong>Aviso:</strong> Por favor, digite pelo menos a sua Matrícula para buscar.
+        </div>`;
+      return;
+  }
+
+  // 2. MÁGICA DO CARREGAMENTO (Spinner no próprio resultado)
   container.innerHTML = `
-    <div class="loading-consulta">
-      <div class="loading-spinner"></div>
-      <span>Buscando pedidos...</span>
+    <div style="text-align: center; padding: 30px 10px; margin-top: 16px;">
+      <div style="display: inline-block; width: 35px; height: 35px; border: 3px solid #e5e7eb; border-top: 3px solid #0d9488; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+      <p style="margin-top: 12px; color: #4b5563; font-size: 14px; font-weight: 500;">Buscando seus pedidos, aguarde...</p>
+      <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
     </div>
   `;
 
@@ -553,13 +563,10 @@ async function consultarPedidos() {
     btnBuscar.disabled = true;
     btnBuscar.textContent = "Buscando...";
   }
- 
-  try {
 
+  try {
     const res = await fetch(`${API_URL}/acompanhar?pedido=${pedido}&matricula=${matricula}`);
     const json = await res.json();
-
-    console.log('CONSULTA:', json);
 
     if (!json.ok) {
       throw new Error(json.error || 'Erro ao consultar pedidos.');
@@ -567,12 +574,23 @@ async function consultarPedidos() {
 
     const itens = json.data.itens || [];
 
+    // 3. SE NÃO ACHAR NADA: Mostra a mensagem chique
+    if (itens.length === 0) {
+        container.innerHTML = `
+            <div style="padding: 24px 16px; background-color: #f9fafb; border: 2px dashed #e5e7eb; border-radius: 12px; text-align: center; margin-top: 16px;">
+                <span style="font-size: 32px; display: block; margin-bottom: 8px;">📭</span>
+                <strong style="color: #374151; font-size: 15px;">Nenhum pedido encontrado</strong>
+                <p style="color: #6b7280; font-size: 13px; margin-top: 6px; margin-bottom: 0;">Não localizamos histórico com esses dados.</p>
+            </div>
+        `;
+        return;
+    }
+
+    // 4. SE ACHAR: Agrupa e mostra os cards que você já criou
     const pedidosAgrupados = {};
 
     itens.forEach(item => {
-
       const numero = item.numeroPedido;
-
       if (!pedidosAgrupados[numero]) {
         pedidosAgrupados[numero] = {
           numeroPedido: numero,
@@ -580,28 +598,23 @@ async function consultarPedidos() {
           itens: []
         };
       }
-
       pedidosAgrupados[numero].itens.push(item);
-
     });
 
     renderizarPedidosAgrupados(Object.values(pedidosAgrupados));
 
   } catch (error) {
-
     console.error(error);
-
-    container.innerHTML = "<p>Erro ao consultar pedidos.</p>";
-
+    container.innerHTML = `
+        <div style="padding: 12px; background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; color: #991b1b; font-size: 13px; margin-top: 16px; text-align: left;">
+           ❌ Ocorreu um erro de conexão ao buscar os pedidos. Tente novamente.
+        </div>`;
   } finally {
-
-      if (btnBuscar) {
+    if (btnBuscar) {
       btnBuscar.disabled = false;
       btnBuscar.textContent = "Buscar";
     }
-
   }
-
 }
 
 function renderizarPedidosAgrupados(pedidos) {
