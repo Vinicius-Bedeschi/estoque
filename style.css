@@ -1012,7 +1012,7 @@ tbody tr:hover td { background-color: #f8fafc; }
   background-color: #fca5a5;
 }
 
-/* --- ADAPTAÇÃO PARA TELAS MAIORES (PC / TABLET) --- */
+/* --- ADAPTAÇÃO PARA TELAS MAIORES --- */
 @media (min-width: 600px) {
   .cartao-item {
       flex-direction: row;
@@ -1047,4 +1047,8 @@ tbody tr:hover td { background-color: #f8fafc; }
   border-radius: 8px; /* Já aproveita e deixa as pontas arredondadas! */
   background-color: #f3f1f1; /* Garante que o fundo do card fique branquinho, destacando do fundo do modal */
   box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* Uma sombrinha super leve pra dar um charme */
+}
+
+#btnBuscarPedidos {
+  margin-top: 20px;
 }
