@@ -19,6 +19,7 @@ const observacaoInput = document.getElementById('observacao');
 const tabelaItens = document.getElementById('tabelaItens');
 const successBox = document.getElementById('successBox');
 const errorBox = document.getElementById('errorBox');
+const btnEnviar = document.getElementById('btnEnviar');
 const btnAdicionar = document.getElementById('btnAdicionar');
 const itemError = document.getElementById('itemError');
 const itemInfoBox = document.getElementById('itemInfoBox');
@@ -316,10 +317,6 @@ function adicionarItem() {
     return;
   }
 
-  if (!validarQuantidadeAtual()) {
-    return;
-  }
-
   const itemBase = getItemBase(itemNome);
 
   if (!itemBase) {
@@ -360,9 +357,9 @@ function adicionarItem() {
 function renderizarTabela() {
   if (carrinho.length === 0) {
     tabelaItens.innerHTML = `
-      <tr>
-        <td colspan="4" class="empty">Nenhum item adicionado.</td>
-      </tr>
+      <div style="text-align: center; padding: 20px; color: #666;">
+      Nenhum item adicionado.
+      </div>
     `;
     atualizarTotalPedido();
     return;
@@ -427,14 +424,15 @@ function validarFormulario() {
 async function enviarPedido() {
   limparMensagens();
 
-  // 1. Validação do formulário
+  btnEnviar.disabled = true;
+
   const erro = validarFormulario();
   if (erro) {
     mostrarErro(erro);
+    btnEnviar.disabled = false;
     return;
   }
 
-  // 2. Prepara a tela para o envio
   const loadingOverlay = document.getElementById('loadingOverlay');
   const loadingText = document.getElementById('loadingText');
   
@@ -442,7 +440,6 @@ async function enviarPedido() {
   loadingOverlay.classList.remove('hidden');
 
   try {
-    // 3. Monta os dados
     const payload = {
       action: 'salvarSolicitacao',
       matricula: matriculaInput.value.trim(),
@@ -456,12 +453,9 @@ async function enviarPedido() {
       }))
     };
 
-    // 4. Faz a requisição para a API interna, que repassa para o Google Apps Script
     const res = await fetch(`${API_URL}/solicitacao`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
 
@@ -471,7 +465,8 @@ async function enviarPedido() {
       throw new Error(json.error || 'Erro ao enviar solicitação.');
     }
 
-// 5. Sucesso - Injeta o comprovante DIRETO na div e chama um Toast limpo
+    resetarFormulario();
+
     const htmlSucesso = `
       <div class="alerta-sucesso-pedido">
         <div class="alerta-icone-trofeu">✓</div>
@@ -481,22 +476,17 @@ async function enviarPedido() {
         </div>
       </div>
     `;
-    
-    // Mostra o comprovante na tela
+
     successBox.innerHTML = htmlSucesso;
     successBox.classList.remove('hidden');
     errorBox.classList.add('hidden');
-    
-    // Chama o Toast simples e direto ao ponto!
+
     criarToast('Solicitação enviada com sucesso!', 'success');
-    
-    resetarFormulario();
 
   } catch (error) {
-    // 6. Erro - mostra a mensagem de erro
     mostrarErro(error.message || 'Ocorreu um erro ao enviar o pedido.');
   } finally {
-    // 7. Finalização - esconde o loading
+    btnEnviar.disabled = false;
     loadingOverlay.classList.add('hidden');
   }
 }
