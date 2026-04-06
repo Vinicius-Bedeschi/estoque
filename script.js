@@ -476,7 +476,7 @@ async function enviarPedido() {
       <div class="alerta-sucesso-pedido">
         <div class="alerta-icone-trofeu">✓</div>
         <div class="alerta-texto-sucesso">
-          <span>Sua solicitação foi registrada com sucesso, clique em ACOMPANHAR PEDIDOS para visualizar o status.</span>
+          <span>Sua solicitação foi registrada com sucesso, clique em <b>Consultar pedidos</b> para visualizar o status.</span>
           <strong>Nº do pedido: <span class="destaque-numero-pedido">${json.data.numeroPedido || 'Gerado'}</span></strong>
         </div>
       </div>
