@@ -681,6 +681,13 @@ function renderizarPedidosAgrupados(pedidos) {
               <div><b>Item:</b> ${item.item}</div>
               <div><b>Qtd Pedida:</b> ${item.quantidade}</div>
               <div><b>Qtd Separada:</b> ${item.quantidadeSeparada ?? '-'}</div>
+              
+              ${item.obsSeparacao ? `
+                <div style="background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 8px; margin-top: 8px; font-size: 12.5px; color: #92400e; border-radius: 4px;">
+                  💡 <b>Observação:</b> ${item.obsSeparacao}
+                </div>
+              ` : ''}
+              
             </div>
           `).join('')}
         </div>
