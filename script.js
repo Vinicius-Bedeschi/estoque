@@ -297,10 +297,22 @@ function adicionarItem() {
   limparMensagens();
 
   const itemNome = itemSelect.value;
-  const quantidade = Number(quantidadeInput.value);
+  // Pegamos o texto exato que está no campo, removendo espaços
+  const quantidadeTexto = quantidadeInput.value.trim(); 
+  const quantidade = Number(quantidadeTexto);
 
   if (!itemNome) {
     mostrarErroItem('Selecione um item.');
+    return;
+  }
+
+// Se o campo estiver vazio, for zero, negativo ou for número que não seja inteiro, barra
+  if (quantidadeTexto === '' || quantidade <= 0 || !Number.isInteger(quantidade)) {
+    mostrarErroItem('Por favor, informe uma quantidade inteira e válida.');
+    return;
+  }
+
+  if (!validarQuantidadeAtual()) {
     return;
   }
 
@@ -459,8 +471,25 @@ async function enviarPedido() {
       throw new Error(json.error || 'Erro ao enviar solicitação.');
     }
 
-    // 5. Sucesso - mostra a mensagem e reseta o formulário
-    mostrarSucesso(`✔ Solicitação registrada com sucesso | Nº do pedido: ${json.data.numeroPedido || 'Gerado'}`);
+// 5. Sucesso - Injeta o comprovante DIRETO na div e chama um Toast limpo
+    const htmlSucesso = `
+      <div class="alerta-sucesso-pedido">
+        <div class="alerta-icone-trofeu">✓</div>
+        <div class="alerta-texto-sucesso">
+          <span>Sua solicitação foi registrada com sucesso na Ouvidoria.</span>
+          <strong>Nº do pedido: <span class="destaque-numero-pedido">${json.data.numeroPedido || 'Gerado'}</span></strong>
+        </div>
+      </div>
+    `;
+    
+    // Mostra o comprovante na tela
+    successBox.innerHTML = htmlSucesso;
+    successBox.classList.remove('hidden');
+    errorBox.classList.add('hidden');
+    
+    // Chama o Toast simples e direto ao ponto!
+    criarToast('Solicitação enviada com sucesso!', 'success');
+    
     resetarFormulario();
 
   } catch (error) {
@@ -496,7 +525,7 @@ function mostrarErro(msg) {
 }
 
 function mostrarSucesso(msg) {
-  successBox.textContent = msg;
+  successBox.innerHTML = msg;
   successBox.classList.remove('hidden');
   errorBox.classList.add('hidden');
   criarToast(msg, 'success');
@@ -510,10 +539,21 @@ function limparMensagens() {
 function criarToast(mensagem, tipo = 'success') {
   const toast = document.createElement('div');
   toast.className = `toast toast-${tipo}`;
-  toast.textContent = mensagem;
+
+  const icone = tipo === 'success' ? '✔' : '✖';
+  const titulo = tipo === 'success' ? 'Sucesso!' : 'Erro!';
+  
+  toast.innerHTML = `
+    <div class="toast-icone">${icone}</div>
+    <div class="toast-conteudo">
+      <strong>${titulo}</strong>
+      <span>${mensagem}</span>
+    </div>
+  `;
 
   document.body.appendChild(toast);
 
+  // O tempo do toast na tela (3.5 segundos)
   setTimeout(() => {
     toast.remove();
   }, 3500);

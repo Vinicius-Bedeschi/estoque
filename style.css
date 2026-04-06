@@ -305,31 +305,6 @@ tbody tr:hover td { background-color: #f8fafc; }
   background: #ef4444 !important;
 }
 
-.toast {
-  position: fixed;
-  top: 24px;
-  right: 24px;
-  min-width: 280px;
-  max-width: 380px;
-  z-index: 9999;
-  padding: 14px 16px;
-  border-radius: 14px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
-  font-weight: 700;
-  animation: slideIn 0.25s ease;
-}
-
-.toast-success {
-  background: #ecfdf5;
-  color: #065f46;
-  border: 1px solid #a7f3d0;
-}
-
-.toast-error {
-  background: #fef2f2;
-  color: #991b1b;
-  border: 1px solid #fecaca;
-}
 
 @keyframes slideIn {
   from {
@@ -765,15 +740,6 @@ tbody tr:hover td { background-color: #f8fafc; }
     width: 100%; 
   }
 
-  /* 4. Notificações (Toast): centralizadas na tela do celular */
-  .toast {
-    top: 16px;
-    right: 16px;
-    left: 16px;
-    min-width: auto;
-    max-width: none;
-  }
-
   /* 5. Ajuste do Modal para não vazar na tela */
   .modal-content {
     padding: 16px;
@@ -880,15 +846,6 @@ tbody tr:hover td { background-color: #f8fafc; }
     font-weight: 700;
     color: var(--csc-cyan-dark);
     margin-right: 10px;
-  }
-  
-  /* 8. Toast mais compacto */
-  .toast {
-    padding: 12px 14px;
-    font-size: 12px;
-    top: 12px;
-    right: 12px;
-    left: 12px;
   }
   
   /* 9. Modal mais compacto */
@@ -1047,8 +1004,178 @@ tbody tr:hover td { background-color: #f8fafc; }
   border-radius: 8px; /* Já aproveita e deixa as pontas arredondadas! */
   background-color: #f3f1f1; /* Garante que o fundo do card fique branquinho, destacando do fundo do modal */
   box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* Uma sombrinha super leve pra dar um charme */
+  padding: 16px;
 }
 
 #btnBuscarPedidos {
   margin-top: 20px;
+}
+
+/* =========================================
+   Toast Cores Sólidas
+   ========================================= */
+.toast {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  min-width: 320px;
+  max-width: 400px;
+  z-index: 9999;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  animation: slideIn 0.3s ease;
+  overflow: hidden; 
+}
+
+.toast-icone {
+  font-size: 20px;
+  background: rgba(255, 255, 255, 0.25);
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  font-weight: bold;
+}
+
+.toast-conteudo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+}
+
+.toast-conteudo strong {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.toast-conteudo span {
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.4;
+  opacity: 0.95;
+}
+
+.toast-success {
+  background-color: #2ecc71; 
+}
+
+.toast-error {
+  background-color: #e74c3c; 
+}
+
+.toast::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 4px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.4);
+  animation: barraTempo 3.5s linear forwards;
+}
+
+@keyframes barraTempo {
+  from { width: 100%; }
+  to { width: 0%; }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-15px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 768px) {
+  
+
+  /* Notificações Toast no celular */
+  .toast {
+    top: auto; 
+    bottom: 24px; 
+    right: 16px;
+    left: 16px;
+    min-width: auto;
+    max-width: none;
+    animation: slideUp 0.3s ease; 
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================================
+   COMPROVANTE DE PEDIDO
+   ========================================= */
+.alerta-sucesso-pedido {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #ffffff;
+  border: 1px solid #e5eae9;
+  border-top: 5px solid var(--csc-cyan);
+  padding: 16px 20px;
+  border-radius: 8px;
+  margin-top: 16px;
+  margin-bottom: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.alerta-icone-trofeu {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  background: #e6f7f6; 
+  color: var(--csc-cyan-dark);
+  border-radius: 50%;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.alerta-texto-sucesso {
+  display: flex;
+  flex-direction: column;
+}
+
+.alerta-texto-sucesso span {
+  color: var(--text-sub);
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+.alerta-texto-sucesso strong {
+  color: var(--text-main);
+  font-size: 15px;
+  font-weight: 700;
+  margin-top: 6px;
+}
+
+/* Número do pedido */
+.destaque-numero-pedido {
+  background: #f1f7f6;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #d9e2e1;
+  letter-spacing: 0.5px;
+  font-size: 20px;
+  color: var(--csc-cyan-dark);
+  font-family: monospace;
 }
