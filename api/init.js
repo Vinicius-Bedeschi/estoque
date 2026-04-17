@@ -1,4 +1,4 @@
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwzsvxwJoh1L5IrqV-akL8JVOGwq8zNuWo9y0z73pjHRopmHvkpH0fuhtXwUBTIW-Yg/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx07jnL2BEAq4FKZ0bFbiofWYzHweYnstwf7MMNCY8HirGmmdBaiefR2iR7u1VIM4aN/exec';
 
 export default async function handler(req, res) {
   try {
