@@ -39,6 +39,43 @@ quantidadeInput.addEventListener('input', validarQuantidadeAtual);
 
 init();
 
+// --- INÍCIO ATUALIZAÇÃO ESTOQUE ---
+let tempoDaUltimaBusca = 0;
+const intervaloDeEspera = 15000; // 15 segundos de trava anti-spam
+
+async function atualizarNumerosEmSilencio() {
+  if (document.visibilityState === 'visible') {
+    const momentoAtual = Date.now();
+    
+    if (momentoAtual - tempoDaUltimaBusca > intervaloDeEspera) {
+      tempoDaUltimaBusca = momentoAtual;
+      
+      try {
+        
+        const res = await fetch(`${API_URL}/init`);
+        const json = await res.json();
+
+        if (json.ok) {
+          
+          dadosBase = json.data;
+          
+          
+          if (itemSelect.value !== '') {
+            atualizarInfoItem(); 
+          }
+        }
+      } catch (erro) {
+        
+        console.warn("Falha na conexão ao atualizar o estoque.", erro);
+      }
+    }
+  }
+}
+
+document.addEventListener('visibilitychange', atualizarNumerosEmSilencio);
+window.addEventListener('focus', atualizarNumerosEmSilencio);
+// --- FIM ATUALIZAÇÃO ESTOQUEL ---
+
 async function init() {
   try {
     const res = await fetch(`${API_URL}/init`);
