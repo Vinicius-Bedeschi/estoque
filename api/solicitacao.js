@@ -1,4 +1,4 @@
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx07jnL2BEAq4FKZ0bFbiofWYzHweYnstwf7MMNCY8HirGmmdBaiefR2iR7u1VIM4aN/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzC08d5PhrMEDRsxSde4E8yg9r4AU8yoYC5H20yQufsqanqgkuw6tb7ZXHIorFM9bsg/exec ';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
