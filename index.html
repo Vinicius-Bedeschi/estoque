@@ -61,17 +61,25 @@
     </section>
 
     <section class="card">
-      <div class="table-header">
-        <h2>Itens do pedido</h2>
-      </div>
+     <div class="table-header">
+      <h2>Itens do pedido</h2>
+     </div>
 
-      <div class="grid itens-grid">
-        <div class="field grow-2">
-          <label for="item">Item</label>
-          <select id="item">
-            <option value="">Selecione um item</option>
-          </select>
+    <div class="grid itens-grid">
+      <div class="field grow-2">
+        <label for="item">Item</label>
+
+        <div class="item-search">
+          <input
+            type="text"
+            id="item"
+            placeholder="Digite para pesquisar ou selecione um item"
+            autocomplete="off"
+          />
+
+          <div id="itemSugestoes" class="item-sugestoes hidden"></div>
         </div>
+      </div>
 
         <div class="field">
           <label for="quantidade">Quantidade</label>
@@ -111,6 +119,15 @@
         <strong id="totalPedidoValor">R$ 0,00</strong>
       </div>
 
+      <div class="aviso-estoque">
+      <div class="aviso-titulo">ATENÇÃO</div>
+      <div class="aviso-texto">
+       Solicite apenas os itens disponíveis na lista.<br>
+       Se o item não aparece na lista, ele não está disponível para pedido.<br>
+       A observação não deve ser usada para solicitar materiais.
+      </div>
+      </div>
+
       <div class="field full observacao-bloco">
         <label for="observacao">Observação</label>
         <textarea id="observacao" rows="3" placeholder="Opcional"></textarea>
@@ -136,7 +153,7 @@
 
   <footer class="main-footer">
     <p>Desenvolvido por <strong>Vinícius Bedeschi</strong></p>
-    <span class="version">v1.31.2026</span>
+    <span class="version">v2.31.2026</span>
   </footer>
 
   <script src="script.js"></script>

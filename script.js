@@ -14,6 +14,7 @@ const telefoneInput = document.getElementById('telefone');
 const localSelect = document.getElementById('local');
 const departamentoSelect = document.getElementById('departamento');
 const itemSelect = document.getElementById('item');
+const itemSugestoes = document.getElementById('itemSugestoes');
 const quantidadeInput = document.getElementById('quantidade');
 const observacaoInput = document.getElementById('observacao');
 const tabelaItens = document.getElementById('tabelaItens');
@@ -34,7 +35,14 @@ document.getElementById('btnLimpar').addEventListener('click', limparPedido);
 document.getElementById('btnEnviar').addEventListener('click', enviarPedido);
 matriculaInput.addEventListener('blur', buscarFuncionario);
 
-itemSelect.addEventListener('change', atualizarInfoItem);
+itemSelect.addEventListener('input', pesquisarItens);
+itemSelect.addEventListener('focus', () => renderizarSugestoesItens(itemSelect.value));
+
+document.addEventListener('click', (event) => {
+  if (!event.target.closest('.item-search')) {
+    esconderSugestoesItens();
+  }
+});
 quantidadeInput.addEventListener('input', validarQuantidadeAtual);
 
 init();
@@ -93,14 +101,8 @@ async function init() {
 }
 
 function preencherSelects() {
-  itemSelect.innerHTML = '<option value="">Selecione um item</option>';
-
-  dadosBase.itens.forEach(item => {
-    const option = document.createElement('option');
-    option.value = item.nome;
-    option.textContent = item.nome;
-    itemSelect.appendChild(option);
-  });
+  itemSelect.value = '';
+  esconderSugestoesItens();
 
   localSelect.innerHTML = '<option value="">Selecione</option>';
   dadosBase.locais.forEach(local => {
@@ -117,6 +119,153 @@ function preencherSelects() {
     option.textContent = dep;
     departamentoSelect.appendChild(option);
   });
+}
+
+function normalizarBusca(texto) {
+  return String(texto || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function distanciaLevenshtein(a, b) {
+  a = normalizarBusca(a);
+  b = normalizarBusca(b);
+
+  if (a === b) return 0;
+  if (!a.length) return b.length;
+  if (!b.length) return a.length;
+
+  const matriz = [];
+
+  for (let i = 0; i <= b.length; i++) {
+    matriz[i] = [i];
+  }
+
+  for (let j = 0; j <= a.length; j++) {
+    matriz[0][j] = j;
+  }
+
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      if (b.charAt(i - 1) === a.charAt(j - 1)) {
+        matriz[i][j] = matriz[i - 1][j - 1];
+      } else {
+        matriz[i][j] = Math.min(
+          matriz[i - 1][j - 1] + 1,
+          matriz[i][j - 1] + 1,
+          matriz[i - 1][j] + 1
+        );
+      }
+    }
+  }
+
+  return matriz[b.length][a.length];
+}
+
+function termoCombinaComItem(termo, itemNormalizado) {
+  if (!termo) return true;
+
+  if (itemNormalizado.includes(termo)) return true;
+
+  const palavrasItem = itemNormalizado.split(' ');
+
+  return palavrasItem.some(palavra => {
+    if (palavra.includes(termo)) return true;
+    if (termo.length >= 4 && distanciaLevenshtein(termo, palavra) <= 2) return true;
+    if (termo.length >= 3 && distanciaLevenshtein(termo, palavra) <= 1) return true;
+
+    return false;
+  });
+}
+
+function pontuarItem(itemNome, busca) {
+  const itemNormalizado = normalizarBusca(itemNome);
+  const buscaNormalizada = normalizarBusca(busca);
+
+  if (!buscaNormalizada) return 1;
+
+  const termos = buscaNormalizada.split(' ').filter(Boolean);
+
+  const todosTermosCombinam = termos.every(termo =>
+    termoCombinaComItem(termo, itemNormalizado)
+  );
+
+  if (!todosTermosCombinam) return 0;
+
+  let pontos = 10;
+
+  if (itemNormalizado.startsWith(buscaNormalizada)) pontos += 30;
+  if (itemNormalizado.includes(buscaNormalizada)) pontos += 20;
+
+  termos.forEach(termo => {
+    if (itemNormalizado.startsWith(termo)) pontos += 10;
+    if (itemNormalizado.includes(termo)) pontos += 5;
+  });
+
+  return pontos;
+}
+
+function pesquisarItens() {
+  limparErroItem();
+  renderizarSugestoesItens(itemSelect.value);
+  atualizarInfoItem();
+}
+
+function renderizarSugestoesItens(busca) {
+  if (!itemSugestoes) return;
+
+  const resultados = dadosBase.itens
+    .map(item => ({
+      nome: item.nome,
+      pontos: pontuarItem(item.nome, busca)
+    }))
+    .filter(item => item.pontos > 0)
+    .sort((a, b) => b.pontos - a.pontos || a.nome.localeCompare(b.nome))
+    .slice(0, busca ? 10 : dadosBase.itens.length);
+
+  if (resultados.length === 0) {
+    itemSugestoes.innerHTML = `
+      <div class="item-sugestao-vazio">
+        Nenhum item encontrado. Se não aparece na lista, não está disponível para pedido.
+      </div>
+    `;
+    itemSugestoes.classList.remove('hidden');
+    return;
+  }
+
+  itemSugestoes.innerHTML = resultados.map(item => `
+    <button type="button" class="item-sugestao" onclick="selecionarItem('${escapeHtml(item.nome)}')">
+      ${escapeHtml(item.nome)}
+    </button>
+  `).join('');
+
+  itemSugestoes.classList.remove('hidden');
+}
+
+function selecionarItem(itemNome) {
+  itemSelect.value = itemNome;
+  esconderSugestoesItens();
+  atualizarInfoItem();
+  quantidadeInput.focus();
+}
+
+function esconderSugestoesItens() {
+  if (!itemSugestoes) return;
+  itemSugestoes.classList.add('hidden');
+  itemSugestoes.innerHTML = '';
+}
+
+function escapeHtml(texto) {
+  return String(texto || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
 
 function atualizarInfoItem() {
@@ -207,7 +356,7 @@ function validarQuantidadeAtual() {
   const itemBase = getItemBase(itemNome);
 
   if (!itemBase) {
-    mostrarErroItem('Item inválido.');
+    mostrarErroItem('Selecione um item válido da lista de sugestões.');
     btnAdicionar.disabled = true;
     return false;
   }
@@ -357,7 +506,7 @@ function adicionarItem() {
   const itemBase = getItemBase(itemNome);
 
   if (!itemBase) {
-    mostrarErroItem('Item inválido.');
+    mostrarErroItem('Selecione um item válido da lista de sugestões.');
     return;
   }
 
@@ -448,6 +597,62 @@ function limparPedido() {
   limparMensagens();
 }
 
+function observacaoParecePedidoDeMaterial(texto) {
+  if (!texto) return false;
+
+  const linhas = texto
+    .split(/\n+/)
+    .map(linha => linha.trim())
+    .filter(Boolean);
+
+  const textoNormalizado = texto
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+
+  const palavrasDeMaterial = [
+    'caixa', 'caixas',
+    'pacote', 'pacotes',
+    'pct', 'pcts',
+    'unidade', 'unidades',
+    'rolo', 'rolos',
+    'frasco', 'frascos',
+    'litro', 'litros',
+    'lampada', 'lampadas',
+    'papel', 'copo', 'copos',
+    'desinfetante', 'detergente',
+    'sabonete', 'sabao',
+    'saco', 'sacos',
+    'toalha', 'perflex',
+    'agua sanitaria', 'aguas sanitarias',
+    'acucar', 'cafe'
+  ];
+
+  const temMuitasLinhas = linhas.length >= 3;
+
+  const quantidadeNoInicio = linhas.filter(linha =>
+    /^\s*\d+\s+[a-zA-ZÀ-ÿ]/.test(linha)
+  ).length;
+
+  const palavrasEncontradas = palavrasDeMaterial.filter(palavra =>
+    textoNormalizado.includes(palavra)
+  ).length;
+
+  // Bloqueia lista clara de materiais
+  if (temMuitasLinhas && palavrasEncontradas >= 1) return true;
+
+  // Bloqueia várias linhas começando com quantidade
+  if (quantidadeNoInicio >= 2) return true;
+
+  // Bloqueia uma linha começando com quantidade + palavra de material
+  if (quantidadeNoInicio >= 1 && palavrasEncontradas >= 1) return true;
+
+  // Bloqueia texto curto claramente pedindo material
+  if (palavrasEncontradas >= 3) return true;
+
+  return false;
+}
+
 function validarFormulario() {
   if (!matriculaInput.value.trim()) return 'Informe a matrícula.';
   if (!nomeInput.value.trim()) return 'Matrícula não encontrada.';
@@ -455,6 +660,11 @@ function validarFormulario() {
   if (!localSelect.value) return 'Selecione o local.';
   if (!departamentoSelect.value) return 'Selecione o departamento.';
   if (carrinho.length === 0) return 'Adicione pelo menos um item.';
+
+  if (observacaoParecePedidoDeMaterial(observacaoInput.value.trim())) {
+    return 'A observação não deve ser usada para solicitar materiais. Adicione os itens pelo campo ITEM. Se o item não aparece na lista, ele não está disponível para pedido.';
+  }
+
   return '';
 }
 
