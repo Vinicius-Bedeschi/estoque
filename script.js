@@ -49,7 +49,7 @@ init();
 
 // --- INÍCIO ATUALIZAÇÃO ESTOQUE ---
 let tempoDaUltimaBusca = 0;
-const intervaloDeEspera = 15000; // 15 segundos de trava anti-spam
+const intervaloDeEspera = 300000; // 300 segundos de trava anti-spam
 
 async function atualizarNumerosEmSilencio() {
   if (document.visibilityState === 'visible') {
